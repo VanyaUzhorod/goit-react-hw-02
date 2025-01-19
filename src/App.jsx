@@ -1,25 +1,20 @@
 import "./App.css";
 import { useState, useEffect } from "react";
-
 import Options from "./components/Options/Options";
-import FeedBack from "./components/Feedback/Feedback";
+import FeedBack from "./components/Feedback/FeedBack";
 import Notification from "./components/Notification/Notification";
+import Description from "./components/Description/Description";
 
 const App = () => {
-  const [feedback, setFeedback] = useState({
-    good: 0,
-    neutral: 0,
-    bad: 0,
+  const [feedback, setFeedback] = useState(() => {
+    const saveFeedback = window.localStorage.getItem("save-feedback");
+    if (saveFeedback !== null) {
+      return JSON.parse(saveFeedback);
+    }
+    return { good: 0, neutral: 0, bad: 0 };
   });
   useEffect(() => {
-    const saveFeedback = JSON.parse(localStorage.getItem("feedback"));
-    if (saveFeedback) {
-      setFeedback(saveFeedback);
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("feedback", JSON.stringify(feedback));
+    window.localStorage.setItem("save-feedback", JSON.stringify(feedback));
   }, [feedback]);
 
   const updateFeedback = (feedbackType) => {
@@ -29,19 +24,16 @@ const App = () => {
     }));
   };
 
-  const totalFeedback = feedback.good + feedback.neutral + feedback.bad;
   const resetFeedback = () => {
     setFeedback({ good: 0, neutral: 0, bad: 0 });
   };
-  const positiveFeedback = Math.round((feedback.good / totalFeedback) * 100);
+  const totalFeedback = feedback.good + feedback.neutral + feedback.bad;
+  const positiveFeedback =
+    Math.round((feedback.good / totalFeedback) * 100) || 0;
 
   return (
     <div className="App">
-      <h1>Sip Happens Café</h1>
-      <p>
-        Please leave your feedback about our service by selecting one of the
-        options below.
-      </p>
+      <Description />
       <Options
         updateFeedback={updateFeedback}
         resetFeedback={resetFeedback}
